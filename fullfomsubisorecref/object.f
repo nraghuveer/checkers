@@ -57,16 +57,17 @@ InitialRep = { val : Ref Nat, init : Ref Nat };
 allocInitial = lambda _:Unit . { val = ref 0, init = ref 0 } as InitialRep;
 
 /* class takes rep and initializes and creates interface. */
-classInitial = lambda r:InitialRep.
-  let super = unfold[SetCounter] (classSimple r) in
+classInitial = lambda ir:InitialRep.
+  let super = unfold[SetCounter] (classSimple ir) in
     fold[SetCounter]
     {
+      r = ir,
       get = super.get,
       set = super.set,
       inc = super.inc,
       reset = lambda s:SetCounter .
               let self = unfold[SetCounter] s in
-                self.set s 100
+                self.set s (!ir.init)
     };
 
 /* constructor takes rep and constructor args and updates rep */
