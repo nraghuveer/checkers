@@ -36,7 +36,9 @@ classSimple = lambda r:SimpleRep .
       inc = lambda s:SetCounter .
                     let self = unfold[SetCounter] s in
                         self.set s (succ (self.get s)),
-      reset = lambda s:SetCounter . (r.val := 0; unit) /* TODO: Change this to use set */
+      reset = lambda s:SetCounter .
+              let self = unfold[SetCounter] s in
+                self.set s 0
     };
 
 /* constructor takes rep and updates rep by side-effect */
@@ -62,7 +64,9 @@ classInitial = lambda r:InitialRep.
       get = super.get,
       set = super.set,
       inc = super.inc,
-      reset = super.reset
+      reset = lambda s:SetCounter .
+              let self = unfold[SetCounter] s in
+                self.set s 100
     };
 
 /* constructor takes rep and constructor args and updates rep */
