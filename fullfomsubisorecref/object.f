@@ -33,7 +33,9 @@ classSimple = lambda r:SimpleRep .
       r = r,
       get = lambda s:SetCounter . !r.val,
       set = lambda s:SetCounter . lambda n: Nat. (r.val := n; unit),
-      inc = lambda s:SetCounter . (r.val := succ (!r.val); unit),
+      inc = lambda s:SetCounter .
+                    let self = unfold[SetCounter] s in
+                        self.set s (succ (self.get s)),
       reset = lambda s:SetCounter . (r.val := 0; unit)
     }; /* TODO */
 
