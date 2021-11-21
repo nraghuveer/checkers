@@ -4,15 +4,23 @@ SetCounter = Rec SelfType .
     inc : SelfType -> Unit,
     set : SelfType -> Nat -> Unit,
     reset : SelfType -> Unit };
-    
-stubSimple = 
-  fold[SetCounter] 
+
+stubSimple =
+  fold[SetCounter]
     { get = lambda s:SetCounter . 0,
       inc = lambda s:SetCounter . unit,
       set = lambda s:SetCounter . lambda n:Nat . unit,
       reset = lambda s:SetCounter . unit };
-        
-         
+
+simpleCounter =
+  fold[SetCounter]
+    {
+      get = lambda s:SetCounter . 0,
+      inc = lambda s:SetCounter . unit,
+      set = lambda s:SetCounter . lambda n: Nat. unit,
+      reset = lambda s:SetCounter . unit
+    };
+
 SimpleRep = { val : Ref Nat };
 
 /* alloc makes new representation object (fields) */
@@ -20,12 +28,19 @@ allocSimple = lambda _:Unit . { val = ref 0 } as SimpleRep;
 
 /* class takes rep and initializes and creates interface */
 classSimple = lambda r:SimpleRep .
-  stubSimple; /* TODO */
-      
+  fold[SetCounter]
+    {
+      r = r,
+      get = lambda s:SetCounter . !r.val,
+      set = lambda s:SetCounter . lambda n: Nat. (r.val := n; unit),
+      inc = lambda s:SetCounter . (r.val := succ (!r.val); unit),
+      reset = lambda s:SetCounter . (r.val := 0; unit)
+    }; /* TODO */
+
 /* constructor takes rep and updates rep by side-effect */
 newSimple = lambda r:SimpleRep .
   unit; /* No change */
-  
+
 /* make takes constructor args (if any) and returns new initialized object */
 makeSimple = lambda _:Unit .
   let r = allocSimple unit in
@@ -47,13 +62,13 @@ newInitial = lambda r:InitialRep . lambda v:Nat .
   (newSimple r; /* super constructor call */
    r.val := v;
    r.init := v);
-  
+
 makeInitial = lambda v:Nat .
   let r = allocInitial unit in
     (newInitial r v;
      classInitial r);
-  
-  
+
+
 BackupRep = InitialRep;
 
 allocBackup = lambda _:Unit . allocInitial unit;
@@ -61,7 +76,7 @@ allocBackup = lambda _:Unit . allocInitial unit;
 classBackup = lambda r:BackupRep .
   let super = unfold[SetCounter] (classInitial r) in
     stubSimple; /* TODO */
-     
+
 newBackup = lambda r:BackupRep .
   newInitial r 6;
 
@@ -70,7 +85,7 @@ makeBackup = lambda _:Unit .
     (newBackup r;
      classBackup r);
 
-    
+
 get = lambda s:SetCounter . (unfold[SetCounter] s).get(s);
 set = lambda s:SetCounter . lambda nv : Nat . (unfold[SetCounter] s).set(s)(nv);
 inc = lambda s:SetCounter . (unfold[SetCounter] s).inc(s);
@@ -81,9 +96,9 @@ equal = fix (lambda eq: Nat -> Nat -> Bool .
                  lambda n:Nat .
                     if iszero m then iszero n else
                     if iszero n then false else eq (pred m) (pred n));
-       
+
 "We create some simple counters";
-                  
+
 c1 = makeSimple unit;
 c2 = makeSimple unit;
 
@@ -155,6 +170,6 @@ InstrSetCounter = Rec SelfType .
 /* The following doesn't type check: */
 test = lambda isc:InstrSetCounter . get(isc);
 
-/* 
- * Explain why we can't add new methods in a sub type 
+/*
+ * Explain why we can't add new methods in a sub type
  */
