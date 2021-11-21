@@ -36,8 +36,8 @@ classSimple = lambda r:SimpleRep .
       inc = lambda s:SetCounter .
                     let self = unfold[SetCounter] s in
                         self.set s (succ (self.get s)),
-      reset = lambda s:SetCounter . (r.val := 0; unit)
-    }; /* TODO */
+      reset = lambda s:SetCounter . (r.val := 0; unit) /* TODO: Change this to use set */
+    };
 
 /* constructor takes rep and updates rep by side-effect */
 newSimple = lambda r:SimpleRep .
@@ -57,7 +57,13 @@ allocInitial = lambda _:Unit . { val = ref 0, init = ref 0 } as InitialRep;
 /* class takes rep and initializes and creates interface. */
 classInitial = lambda r:InitialRep.
   let super = unfold[SetCounter] (classSimple r) in
-    stubSimple; /* TODO */
+    fold[SetCounter]
+    {
+      get = super.get,
+      set = super.set,
+      inc = super.inc,
+      reset = super.reset
+    };
 
 /* constructor takes rep and constructor args and updates rep */
 newInitial = lambda r:InitialRep . lambda v:Nat .
