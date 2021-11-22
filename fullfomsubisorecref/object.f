@@ -92,7 +92,7 @@ classBackup = lambda br:BackupRep .
     {
       r = br,
       get = super.get,
-      set = lambda s:SetCounter . lambda n:Nat . (br.init := n;super.set s n),
+      set = lambda s:SetCounter . lambda n:Nat . (br.init := super.get s;super.set s n),
       inc = super.inc,
       reset = super.reset
     };
