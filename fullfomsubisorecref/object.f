@@ -86,9 +86,16 @@ BackupRep = InitialRep;
 
 allocBackup = lambda _:Unit . allocInitial unit;
 
-classBackup = lambda r:BackupRep .
-  let super = unfold[SetCounter] (classInitial r) in
-    stubSimple; /* TODO */
+classBackup = lambda br:BackupRep .
+  let super = unfold[SetCounter] (classInitial br) in
+    fold[SetCounter]
+    {
+      r = br,
+      get = super.get,
+      set = lambda s:SetCounter . lambda n:Nat . (br.init := n;super.set s n),
+      inc = super.inc,
+      reset = super.reset
+    };
 
 newBackup = lambda r:BackupRep .
   newInitial r 6;
