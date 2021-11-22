@@ -5,29 +5,9 @@ SetCounter = Rec SelfType .
     set : SelfType -> Nat -> Unit,
     reset : SelfType -> Unit };
 
-stubSimple =
-  fold[SetCounter]
-    { get = lambda s:SetCounter . 0,
-      inc = lambda s:SetCounter . unit,
-      set = lambda s:SetCounter . lambda n:Nat . unit,
-      reset = lambda s:SetCounter . unit };
-
-simpleCounter =
-  fold[SetCounter]
-    {
-      get = lambda s:SetCounter . 0,
-      inc = lambda s:SetCounter . unit,
-      set = lambda s:SetCounter . lambda n: Nat. unit,
-      reset = lambda s:SetCounter . unit
-    };
-
 SimpleRep = { val : Ref Nat };
 
-/* alloc makes new representation object (fields) */
-allocSimple = lambda _:Unit . { val = ref 0 } as SimpleRep;
-
-/* class takes rep and initializes and creates interface */
-classSimple = lambda r:SimpleRep .
+simpleCounter = lambda r:SimpleRep .
   fold[SetCounter]
     {
       r = r,
@@ -40,6 +20,15 @@ classSimple = lambda r:SimpleRep .
               let self = unfold[SetCounter] s in
                 self.set s 0
     };
+
+
+/* alloc makes new representation object (fields) */
+allocSimple = lambda _:Unit . { val = ref 0 } as SimpleRep;
+
+/* class takes rep and initializes and creates interface */
+classSimple = lambda r:SimpleRep .
+          simpleCounter r;
+
 
 /* constructor takes rep and updates rep by side-effect */
 newSimple = lambda r:SimpleRep .
